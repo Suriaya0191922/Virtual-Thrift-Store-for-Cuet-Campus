@@ -1,228 +1,239 @@
+// Logout function
 function logout() {
-      window.location.href = "login.html";
-    }
-    
-    // Load existing products from localStorage or use default
-    let products = JSON.parse(localStorage.getItem('sellerProducts')) || [
-      {
-        id: 1,
-        name: "Gaming Laptop",
-        category: "Electronics",
-        price: 45000,
-        condition: "good",
-        description: "High-performance gaming laptop with GTX graphics card",
-        image: "https://via.placeholder.com/300x200/3cb371/ffffff?text=Gaming+Laptop",
-        status: "active",
-        featured: true,
-        dateAdded: "2025-05-15",
-        seller: "Current Seller",
-        sellerId: "2019331001"
+  localStorage.removeItem('token');  // Clear the token from localStorage
+  window.location.href = "login.html";  // Redirect to login page
+}
+
+// Load existing products from localStorage or fetch from backend
+let products = JSON.parse(localStorage.getItem('sellerProducts')) || [];
+
+// Function to save products to localStorage
+function saveProductsToStorage() {
+  localStorage.setItem('sellerProducts', JSON.stringify(products));
+
+  // Also update featured products for the featured page
+  const featuredProducts = products.filter(p => p.featured).map(p => ({
+    ...p,
+    views: p.views || 0
+  }));
+  localStorage.setItem('featuredProducts', JSON.stringify(featuredProducts));
+}
+
+// Sidebar toggle
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const mainContent = document.getElementById('mainContent');
+
+  sidebar.classList.toggle('show');
+  overlay.classList.toggle('show');
+
+  if (window.innerWidth > 768) {
+    mainContent.classList.toggle('sidebar-open');
+  }
+}
+
+// Close sidebar on overlay click or small screen nav
+function closeSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const mainContent = document.getElementById('mainContent');
+
+  sidebar.classList.remove('show');
+  overlay.classList.remove('show');
+  mainContent.classList.remove('sidebar-open');
+}
+
+// Navigation to sections
+function navigateTo(section) {
+  // Hide all content sections
+  document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+
+  // Remove active class from all nav links
+  document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+
+  // Show target section & highlight nav link
+  document.getElementById(section + '-section').classList.add('active');
+  document.getElementById('nav-' + section).classList.add('active');
+
+  // Load specific content if needed
+  if (section === 'products') {
+    loadMyProducts();
+  }
+
+  // Close sidebar on small screens after nav
+  if (window.innerWidth <= 768) {
+    closeSidebar();
+  }
+}
+
+// Image preview on file select
+function previewImage(event) {
+  const file = event.target.files[0];
+  const preview = document.getElementById('imagePreview');
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+// Product form submission handler
+document.getElementById('productForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('You need to login first.');
+    return;
+  }
+
+  const formData = new FormData(this);
+  // Add featured flag manually if needed
+  formData.append('featured', 'true');
+
+  try {
+    const response = await fetch('http://localhost:3000/api/products', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+        // Note: No 'Content-Type' header for multipart/form-data
       },
-      {
-        id: 2,
-        name: "Study Desk",
-        category: "Furniture", 
-        price: 3500,
-        condition: "like-new",
-        description: "Wooden study desk with drawers",
-        image: "https://via.placeholder.com/300x200/1e90ff/ffffff?text=Study+Desk",
-        status: "active",
-        featured: true,
-        dateAdded: "2025-05-20",
-        seller: "Current Seller",
-        sellerId: "2019331001"
-      },
-      {
-        id: 3,
-        name: "Smartphone",
-        category: "Electronics",
-        price: 25000,
-        condition: "good",
-        description: "Android smartphone with good camera",
-        image: "https://via.placeholder.com/300x200/90ee90/000000?text=Smartphone",
-        status: "active",
-        featured: false,
-        dateAdded: "2025-06-01",
-        seller: "Current Seller",
-        sellerId: "2019331001"
-      }
-    ];
+      body: formData
+    });
 
-    // Function to save products to localStorage
-    function saveProductsToStorage() {
-      localStorage.setItem('sellerProducts', JSON.stringify(products));
-      
-      // Also update featured products for the featured page
-      const featuredProducts = products.filter(p => p.featured).map(p => ({
-        ...p,
-        views: p.views || 0
-      }));
-      localStorage.setItem('featuredProducts', JSON.stringify(featuredProducts));
-    }
+    const data = await response.json();
 
-    // Sidebar functionality
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebarOverlay');
-      const mainContent = document.getElementById('mainContent');
-      
-      sidebar.classList.toggle('show');
-      overlay.classList.toggle('show');
-      
-      if (window.innerWidth > 768) {
-        mainContent.classList.toggle('sidebar-open');
-      }
-    }
+    alert(data.message);
 
-    function closeSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebarOverlay');
-      const mainContent = document.getElementById('mainContent');
-      
-      sidebar.classList.remove('show');
-      overlay.classList.remove('show');
-      mainContent.classList.remove('sidebar-open');
-    }
-
-    // Navigation functionality
-    function navigateTo(section) {
-      // Hide all sections
-      document.querySelectorAll('.content-section').forEach(s => {
-        s.classList.remove('active');
-      });
-      
-      // Remove active class from all nav items
-      document.querySelectorAll('.sidebar a').forEach(a => {
-        a.classList.remove('active');
-      });
-      
-      // Show selected section
-      document.getElementById(section + '-section').classList.add('active');
-      document.getElementById('nav-' + section).classList.add('active');
-      
-      // Load section-specific content
-      if (section === 'products') {
-        loadMyProducts();
-      }
-      
-      // Close sidebar on mobile
-      if (window.innerWidth <= 768) {
-        closeSidebar();
-      }
-    }
-
-    // Image preview functionality
-    function previewImage(event) {
-      const file = event.target.files[0];
-      const preview = document.getElementById('imagePreview');
-      
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          preview.src = e.target.result;
-          preview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    // Form submission
-    document.getElementById('productForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const formData = new FormData(this);
-      const productData = {
-        id: Date.now(),
-        name: formData.get('productName'),
-        category: formData.get('category'),
-        price: parseInt(formData.get('price')),
-        condition: formData.get('condition'),
-        description: formData.get('description'),
-        image: document.getElementById('imagePreview').src || "https://via.placeholder.com/300x200/cccccc/666666?text=No+Image",
-        status: 'active',
-        featured: true, // Automatically set as featured for new products
-        dateAdded: new Date().toISOString().split('T')[0],
-        seller: "Current Seller", // You can modify this to get actual seller name
-        sellerId: "2019331001", // You can modify this to get actual seller ID
-        views: 0
-      };
-      
-      products.push(productData);
-      saveProductsToStorage(); // Save to localStorage
-      
-      // Reset form
+    if (response.ok) {
       this.reset();
       document.getElementById('imagePreview').style.display = 'none';
-      
-      // Show success message
-      alert('Product uploaded successfully and automatically added to featured products!');
-      
-      // Update dashboard counts
-      updateDashboardCounts();
+      loadMyProducts();
+    }
+  } catch (error) {
+    alert('Error uploading product');
+    console.error(error);
+  }
+});
+
+// Load products for logged-in seller
+async function loadMyProducts() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('You need to login first.');
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:3000/api/products', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
     });
 
-    // Load my products
-    function loadMyProducts() {
-      const grid = document.getElementById('myProductsGrid');
-      grid.innerHTML = '';
-      
-      products.forEach(product => {
-        const productCard = `
-          <div class="product-card">
-            <img src="${product.image}" alt="${product.name}" class="product-image">
-            <div class="product-info">
-              <h3>${product.name}</h3>
-              <p><strong>Category:</strong> ${product.category}</p>
-              <p><strong>Condition:</strong> ${product.condition}</p>
-              <p><strong>Added:</strong> ${product.dateAdded}</p>
-              <div class="product-price">৳${product.price}</div>
-              <div style="margin: 10px 0;">
-                <span class="status-badge status-${product.status}">${product.status}</span>
-                ${product.featured ? '<span class="status-badge status-featured">Featured</span>' : ''}
-              </div>
-              <p>${product.description}</p>
-              <div class="product-actions">
-                <button class="btn-remove" onclick="deleteProduct(${product.id})">Delete</button>
-              </div>
+    if (!response.ok) {
+      const err = await response.json();
+      alert(err.message || 'Failed to load products');
+      return;
+    }
+
+    const data = await response.json();
+    products = data;
+
+    const grid = document.getElementById('myProductsGrid');
+    grid.innerHTML = '';
+
+    products.forEach(product => {
+      const productCard = `
+        <div class="product-card">
+          <img src="${product.image}" alt="${product.name}" class="product-image">
+          <div class="product-info">
+            <h3>${product.name}</h3>
+            <p><strong>Category:</strong> ${product.category}</p>
+            <p><strong>Condition:</strong> ${product.product_condition || 'N/A'}</p>
+            <p><strong>Added:</strong> ${product.dateAdded || 'N/A'}</p>
+            <div class="product-price">৳${product.price}</div>
+            <div style="margin: 10px 0;">
+              <span class="status-badge status-${product.status}">${product.status}</span>
+              ${product.featured ? '<span class="status-badge status-featured">Featured</span>' : ''}
+            </div>
+            <p>${product.description}</p>
+            <div class="product-actions">
+              <button class="btn-remove" onclick="deleteProduct(${product.id})">Delete</button>
             </div>
           </div>
-        `;
-        grid.innerHTML += productCard;
-      });
-    }
+        </div>
+      `;
+      grid.innerHTML += productCard;
+    });
 
-    // Delete product
-    function deleteProduct(productId) {
-      if (confirm('Are you sure you want to delete this product?')) {
-        products = products.filter(p => p.id !== productId);
-        saveProductsToStorage(); // Update localStorage
-        loadMyProducts();
-        updateDashboardCounts();
-      }
-    }
+    updateDashboardCounts();
 
-    // Update dashboard counts
-    function updateDashboardCounts() {
-      document.getElementById('totalProducts').textContent = products.length + ' items';
-      document.getElementById('featuredCount').textContent = products.filter(p => p.featured).length + ' items';
-    }
+  } catch (error) {
+    alert('Failed to load products');
+    console.error(error);
+  }
+}
 
-    // Window resize handler
-    window.addEventListener('resize', function() {
-      if (window.innerWidth > 768) {
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('mainContent');
-        if (sidebar.classList.contains('show')) {
-          mainContent.classList.add('sidebar-open');
-        }
-      } else {
-        document.getElementById('mainContent').classList.remove('sidebar-open');
+// Delete product by id
+async function deleteProduct(productId) {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('You need to login first.');
+    return;
+  }
+
+  if (!confirm('Are you sure you want to delete this product?')) return;
+
+  try {
+    const response = await fetch(`http://localhost:3000/api/products/${productId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
     });
 
-    // Initialize page
-    document.addEventListener('DOMContentLoaded', function() {
+    const data = await response.json();
+    alert(data.message);
+
+    if (response.ok) {
       loadMyProducts();
-      updateDashboardCounts();
-      saveProductsToStorage(); // Initialize localStorage on page load
-    });
+    }
+  } catch (error) {
+    alert('Error deleting product');
+    console.error(error);
+  }
+}
+
+// Update dashboard product counts
+function updateDashboardCounts() {
+  document.getElementById('totalProducts').textContent = products.length + ' items';
+  document.getElementById('featuredCount').textContent = products.filter(p => p.featured).length + ' items';
+}
+
+// Window resize handler to maintain sidebar state
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 768) {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    if (sidebar.classList.contains('show')) {
+      mainContent.classList.add('sidebar-open');
+    }
+  } else {
+    document.getElementById('mainContent').classList.remove('sidebar-open');
+  }
+});
+
+// Initialize dashboard on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  loadMyProducts();
+  updateDashboardCounts();
+});

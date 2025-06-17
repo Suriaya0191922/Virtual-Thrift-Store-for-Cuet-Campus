@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CUET Thrift Store Seller Dashboard</title>
   <style>
+    /* === CSS kept intact from your original code === */
     * {
       margin: 0;
       padding: 0;
@@ -397,7 +398,6 @@
   </style>
 </head>
 <body>
-
   <!-- Hamburger Menu Button -->
   <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
 
@@ -408,18 +408,15 @@
   <div class="sidebar" id="sidebar">
     <h2>🛒 Seller Panel</h2>
     <a href="#" onclick="navigateTo('dashboard')" id="nav-dashboard" class="active">🗂️ Dashboard</a>
-<a href="#" onclick="navigateTo('upload')" id="nav-upload">📤 Upload Product</a>
-<a href="#" onclick="navigateTo('products')" id="nav-products">🗃️ My Products</a>
-<a href="#" onclick="navigateTo('messages')" id="nav-messages">✉️ Messages</a>
-<a href="featured.html" onclick="navigateTo('featured')" id="nav-featured">⭐ Featured Products</a>
-<a href="#" onclick="logout()">Logout</a>
-
-
+    <a href="#" onclick="navigateTo('upload')" id="nav-upload">📤 Upload Product</a>
+    <a href="#" onclick="navigateTo('products')" id="nav-products">🗃️ My Products</a>
+    <a href="#" onclick="navigateTo('messages')" id="nav-messages">✉️ Messages</a>
+    <a href="featured.html" onclick="navigateTo('featured')" id="nav-featured">⭐ Featured Products</a>
+    <a href="#" onclick="logout()">Logout</a>
   </div>
 
   <!-- Main Content -->
   <div class="main" id="mainContent">
-    
     <!-- Dashboard Section -->
     <div class="content-section active" id="dashboard-section">
       <div class="header">
@@ -429,19 +426,19 @@
       <div class="cards">
         <div class="card">
           <h3>Total Products</h3>
-          <p id="totalProducts">12 items</p>
+          <p id="totalProducts"></p>
         </div>
         <div class="card">
           <h3>Products Sold</h3>
-          <p id="soldProducts">5 items</p>
+          <p id="soldProducts"></p>
         </div>
         <div class="card">
           <h3>New Messages</h3>
-          <p id="newMessages">3 messages</p>
+          <p id="newMessages"></p>
         </div>
         <div class="card">
           <h3>Featured Products</h3>
-          <p id="featuredCount">2 items</p>
+          <p id="featuredCount"></p>
         </div>
       </div>
 
@@ -457,24 +454,7 @@
             </tr>
           </thead>
           <tbody id="recentActivity">
-            <tr>
-              <td>Smartphone</td>
-              <td>Product Sold</td>
-              <td>2025-06-04</td>
-              <td><span class="status-badge status-sold">Sold</span></td>
-            </tr>
-            <tr>
-              <td>Laptop</td>
-              <td>Added to Featured</td>
-              <td>2025-06-03</td>
-              <td><span class="status-badge status-featured">Featured</span></td>
-            </tr>
-            <tr>
-              <td>Textbook</td>
-              <td>New Message</td>
-              <td>2025-06-03</td>
-              <td><span class="status-badge status-active">Active</span></td>
-            </tr>
+            <!-- Dynamic recent activity rows go here -->
           </tbody>
         </table>
       </div>
@@ -485,14 +465,14 @@
       <div class="header">
         <h1>Upload New Product</h1>
       </div>
-      
+
       <div class="upload-form">
         <form id="productForm">
           <div class="form-group">
             <label for="productName">Product Name *</label>
-            <input type="text" id="productName" name="productName" required>
+            <input type="text" id="productName" name="name" required />
           </div>
-          
+
           <div class="form-group">
             <label for="category">Category *</label>
             <select id="category" name="category" required>
@@ -505,15 +485,15 @@
               <option value="other">Other</option>
             </select>
           </div>
-          
+
           <div class="form-group">
             <label for="price">Price (BDT) *</label>
-            <input type="number" id="price" name="price" min="1" required>
+            <input type="number" id="price" name="price" min="1" required />
           </div>
-          
+
           <div class="form-group">
             <label for="condition">Condition *</label>
-            <select id="condition" name="condition" required>
+            <select id="condition" name="product_condition" required>
               <option value="">Select Condition</option>
               <option value="new">New</option>
               <option value="like-new">Like New</option>
@@ -521,18 +501,29 @@
               <option value="fair">Fair</option>
             </select>
           </div>
-          
+
           <div class="form-group">
             <label for="description">Description</label>
-            <textarea id="description" name="description" placeholder="Describe your product..."></textarea>
+            <textarea
+              id="description"
+              name="description"
+              placeholder="Describe your product..."
+            ></textarea>
           </div>
-          
+
           <div class="form-group">
             <label for="productImage">Product Image *</label>
-            <input type="file" id="productImage" name="productImage" accept="image/*" required onchange="previewImage(event)">
-            <img id="imagePreview" class="image-preview" alt="Preview">
+            <input
+              type="file"
+              id="productImage"
+              name="image"
+              accept="image/*"
+              required
+              onchange="previewImage(event)"
+            />
+            <img id="imagePreview" class="image-preview" alt="Preview" />
           </div>
-          
+
           <button type="submit" class="btn-primary">Upload Product</button>
         </form>
       </div>
@@ -543,9 +534,9 @@
       <div class="header">
         <h1>My Products</h1>
       </div>
-      
+
       <div class="product-grid" id="myProductsGrid">
-        <!-- Products will be loaded here -->
+        <!-- Dynamic product cards go here -->
       </div>
     </div>
 
@@ -554,26 +545,9 @@
       <div class="header">
         <h1>Product Messages</h1>
       </div>
-      
+
       <div class="messages" id="productMessages">
-        <div class="msg">
-          <strong>From: Ahmed Hassan (2019331042)</strong><br>
-          <em>Product: Smartphone</em><br>
-          <p>Hi, is this phone still available? Can I see it tomorrow?</p>
-          <small>2 hours ago</small>
-        </div>
-        <div class="msg">
-          <strong>From: Fatima Khan (2020331089)</strong><br>
-          <em>Product: Laptop</em><br>
-          <p>What's the battery life like? Any issues with the screen?</p>
-          <small>5 hours ago</small>
-        </div>
-        <div class="msg">
-          <strong>From: Rakib Islam (2019331156)</strong><br>
-          <em>Product: Textbook</em><br>
-          <p>Is the price negotiable? I'm interested in buying it.</p>
-          <small>1 day ago</small>
-        </div>
+        <!-- Dynamic messages go here -->
       </div>
     </div>
 
@@ -582,7 +556,7 @@
       <div class="header">
         <h1>Featured Products Status</h1>
       </div>
-      
+
       <div class="section">
         <h2>Your Featured Products</h2>
         <table>
@@ -595,21 +569,8 @@
               <th>Views</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>Gaming Laptop</td>
-              <td>Electronics</td>
-              <td>45,000</td>
-              <td>2025-06-01</td>
-              <td>156 views</td>
-            </tr>
-            <tr>
-              <td>Study Desk</td>
-              <td>Furniture</td>
-              <td>3,500</td>
-              <td>2025-05-28</td>
-              <td>89 views</td>
-            </tr>
+          <tbody id="featuredProductsList">
+            <!-- Dynamic featured products rows -->
           </tbody>
         </table>
       </div>
@@ -626,14 +587,8 @@
               <th>Status</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>Smartphone</td>
-              <td>Electronics</td>
-              <td>25,000</td>
-              <td>2025-06-02</td>
-              <td><span class="status-badge status-pending">Under Review</span></td>
-            </tr>
+          <tbody id="underReviewFeaturedList">
+            <!-- Dynamic under review products rows -->
           </tbody>
         </table>
       </div>
@@ -644,6 +599,6 @@
     </div>
   </div>
 
-   <script src="SellerDashboard.js"></script>
+  <script src="SellerDashboard.js"></script>
 </body>
 </html>
